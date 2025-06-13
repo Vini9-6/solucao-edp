@@ -12,20 +12,24 @@ from methods.momentos import MetodoMomentos
 from methods.subdominios import MetodoSubdominios
 from methods.minimos_quadrados import MetodoMinimosQuadrados
 
+# Classe principal da aplicação
+
 
 class EDPSolverApp:
     def __init__(self, root):
+        # Inicializa a janela principal
         self.root = root
         self.root.title("EDP Solver")
         self.root.geometry("1200x800")
 
-        self.resultados = {}
-        self.figura = None
-        self.canvas = None
+        self.resultados = {}  # Armazena os resultados dos métodos
+        self.figura = None    # Figura do matplotlib para gráficos
+        self.canvas = None    # Canvas do matplotlib na interface
 
-        self.create_interface()
+        self.create_interface()  # Monta a interface gráfica
 
     def create_interface(self):
+        # Cria as abas principais da interface
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill='both', expand=True, padx=10, pady=10)
 
@@ -41,19 +45,20 @@ class EDPSolverApp:
         self.frame_ajuda = ttk.Frame(self.notebook)
         self.notebook.add(self.frame_ajuda, text="Ajuda")
 
+        # Cria os conteúdos de cada aba
         self.create_config_frame()
         self.create_results_frame()
         self.create_report_frame()
         self.create_help_frame()
 
     def create_config_frame(self):
-        # Frame for configuration inputs
-        fonte = ("Arial", 20)  # Fonte maior
+        # Frame para entrada dos parâmetros da EDP
+        fonte = ("Arial", 20)  # Fonte maior para melhor visualização
         config_frame = ttk.LabelFrame(
             self.frame_config, text="Configurações da EDP", padding=10)
         config_frame.pack(fill='x', padx=10, pady=10)
 
-        # Tooltips para cada campo
+        # Tooltips explicativos para cada campo
         tooltips = {
             'p(x)': 'Coeficiente de u"(x) na EDP. Ex: 1, x, exp(x)',
             'q(x)': 'Coeficiente de u\'(x) na EDP. Ex: 0, x**2',
@@ -65,6 +70,7 @@ class EDPSolverApp:
         }
 
         def add_tooltip(widget, text):
+            # Função para adicionar tooltip (dica) a um widget
             def on_enter(event):
                 self.tooltip = tk.Toplevel(widget)
                 self.tooltip.wm_overrideredirect(True)
@@ -81,6 +87,7 @@ class EDPSolverApp:
             widget.bind("<Enter>", on_enter)
             widget.bind("<Leave>", on_leave)
 
+        # Criação dos campos de entrada e tooltips
         label_p = ttk.Label(config_frame, text="p(x):", font=fonte)
         label_p.grid(row=0, column=0, sticky='w')
         self.entry_p = ttk.Entry(config_frame, font=fonte)
@@ -138,6 +145,7 @@ class EDPSolverApp:
         add_tooltip(label_np, tooltips['Número de Pontos'])
         add_tooltip(self.entry_n_pontos, tooltips['Número de Pontos'])
 
+        # Botão para resolver a EDP
         ttk.Button(config_frame, text="Resolver EDP", command=self.solve_edp, style="Big.TButton").grid(
             row=7, column=0, columnspan=3, pady=10)
 
@@ -145,10 +153,11 @@ class EDPSolverApp:
         style = ttk.Style()
         style.configure("Big.TButton", font=fonte)
 
-        # Botão para alternar tema
+        # Botão para alternar tema claro/escuro
         self.theme = 'light'
 
         def toggle_theme():
+            # Alterna entre tema claro e escuro
             if self.theme == 'light':
                 self.root.tk_setPalette(
                     background='#222', foreground='#fff', activeBackground='#444', activeForeground='#fff')
@@ -170,15 +179,18 @@ class EDPSolverApp:
                 self.theme = 'light'
         ttk.Button(config_frame, text="Alternar Tema Claro/Escuro", command=toggle_theme,
                    style="Big.TButton").grid(row=8, column=0, columnspan=3, pady=10)
+        # Botão para visualizar a equação simbólica
         ttk.Button(config_frame, text="Visualizar Equação", command=self.display_equation,
                    style="Big.TButton").grid(row=9, column=0, columnspan=3, pady=10)
 
     def create_results_frame(self):
+        # Frame para exibir os resultados numéricos dos métodos
         self.results_text = scrolledtext.ScrolledText(
             self.frame_resultados, height=15)
         self.results_text.pack(fill='both', expand=True, padx=10, pady=10)
 
     def create_report_frame(self):
+        # Frame para exibir o relatório e exportar PDF
         self.report_text = scrolledtext.ScrolledText(
             self.frame_relatorio, height=15)
         self.report_text.pack(fill='both', expand=True, padx=10, pady=10)
@@ -186,6 +198,7 @@ class EDPSolverApp:
                    command=self.export_report_pdf, style="Big.TButton").pack(pady=10)
 
     def create_help_frame(self):
+        # Aba de ajuda com instruções e dicas
         help_text = scrolledtext.ScrolledText(
             self.frame_ajuda, height=30, font=("Arial", 14))
         help_text.pack(fill='both', expand=True, padx=10, pady=10)
@@ -231,7 +244,7 @@ Sobre os resultados:
         help_text.config(state='disabled')
 
     def validate_inputs(self):
-        # Checa se todos os campos estão preenchidos
+        # Valida todos os campos de entrada da interface
         campos = [
             (self.entry_p, 'p(x)'),
             (self.entry_q, 'q(x)'),
@@ -248,7 +261,7 @@ Sobre os resultados:
                 messagebox.showerror(
                     'Erro de entrada', f'O campo "{nome}" deve ser preenchido.')
                 return False
-        # Validação de tipos e valores
+        # Validação de tipos e valores numéricos
         try:
             a = float(self.entry_a.get())
             b = float(self.entry_b.get())
@@ -290,6 +303,7 @@ Sobre os resultados:
         return True
 
     def solve_edp(self):
+        # Executa a resolução da EDP usando todos os métodos numéricos
         if not self.validate_inputs():
             return
         # Adiciona indicador de processamento
@@ -304,6 +318,7 @@ Sobre os resultados:
         pb.start(10)
         self.root.update_idletasks()
         try:
+            # Lê e converte os parâmetros da interface
             p = sp.sympify(self.entry_p.get())
             q = sp.sympify(self.entry_q.get())
             r = sp.sympify(self.entry_r.get())
@@ -318,6 +333,7 @@ Sobre os resultados:
             condicoes_contorno = {'tipo': 'dirichlet', 'valores': (ua, ub)}
 
             self.resultados = {}
+            # Dicionário de métodos numéricos disponíveis
             methods = {
                 'Rayleigh-Ritz': RayleighRitz,
                 'Galerkin': Galerkin,
@@ -327,6 +343,7 @@ Sobre os resultados:
                 'Mínimos Quadrados': MetodoMinimosQuadrados
             }
 
+            # Executa cada método e armazena os resultados
             for name, method in methods.items():
                 solver = method((a, b), n_pontos, condicoes_contorno)
                 solution, coefficients = solver.resolver(edp_params)
@@ -334,7 +351,7 @@ Sobre os resultados:
                     'solution': solution, 'coefficients': coefficients}
 
             self.display_results()
-            self.display_report()  # Adiciona chamada para preencher o relatório
+            self.display_report()  # Preenche o relatório
         except Exception as e:
             messagebox.showerror("Erro", str(e))
         finally:
@@ -342,6 +359,7 @@ Sobre os resultados:
             progress.destroy()
 
     def display_results(self):
+        # Exibe os coeficientes dos métodos na aba de resultados
         self.results_text.delete(1.0, tk.END)
         for name, result in self.resultados.items():
             self.results_text.insert(tk.END, f"{name}:\n")
@@ -352,16 +370,17 @@ Sobre os resultados:
         self.notebook.select(self.frame_resultados)
 
     def display_report(self):
+        # Gera o relatório completo, incluindo comparação e gráfico
         self.report_text.delete(1.0, tk.END)
         self.report_text.insert(
             tk.END, 'Relatório de Métodos Numéricos para EDP\n')
         self.report_text.insert(tk.END, '-'*50 + '\n')
-        # Exibe coeficientes
+        # Exibe coeficientes de cada método
         for name, result in self.resultados.items():
             self.report_text.insert(tk.END, f"{name}:\n")
             self.report_text.insert(
                 tk.END, f"  Coeficientes: {result['coefficients']}\n\n")
-        # Comparação dos resultados
+        # Comparação dos resultados (erro RMS)
         self.report_text.insert(tk.END, '\nComparação entre métodos:\n')
         self.report_text.insert(tk.END, '-'*50 + '\n')
         nomes = list(self.resultados.keys())
@@ -416,7 +435,7 @@ Sobre os resultados:
         self.canvas.get_tk_widget().pack(fill='both', expand=True, padx=10, pady=10)
 
     def display_equation(self):
-        # Monta a equação simbólica com os parâmetros do usuário
+        # Monta e exibe a equação simbólica da EDP baseada nos parâmetros do usuário
         try:
             x = sp.Symbol('x')
             p = sp.sympify(self.entry_p.get())
@@ -441,6 +460,7 @@ Sobre os resultados:
                     text="Equação inválida. Corrija os parâmetros.")
 
     def export_report_pdf(self):
+        # Exporta o relatório e o gráfico para um arquivo PDF
         import tempfile
         from fpdf import FPDF
         import os
@@ -470,6 +490,7 @@ Sobre os resultados:
             pass
 
 
+# Bloco principal para rodar a aplicação
 if __name__ == "__main__":
     root = tk.Tk()
     app = EDPSolverApp(root)
