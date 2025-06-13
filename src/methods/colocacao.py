@@ -1,3 +1,9 @@
+import numpy as np
+import sympy as sp
+from scipy.integrate import quad
+from numpy.linalg import solve
+
+
 class MetodoColocacao:
     def __init__(self, dominio, n_pontos, condicoes_contorno):
         self.dominio = dominio
@@ -11,23 +17,24 @@ class MetodoColocacao:
         x = sp.Symbol('x')
         phi_base = []
         for i in range(1, self.n_col + 1):
-            phi = sp.sin(i * sp.pi * (x - self.dominio[0]) / (self.dominio[1] - self.dominio[0]))
+            phi = sp.sin(
+                i * sp.pi * (x - self.dominio[0]) / (self.dominio[1] - self.dominio[0]))
             phi_base.append(phi)
         return phi_base
 
     def resolver(self, edp_params):
         x = sp.Symbol('x')
         a, b = self.dominio
-        
+
         A = np.zeros((self.n_col, self.n_col))
         b_vec = np.zeros(self.n_col)
 
         for i, x_i in enumerate(self.x_col):
             for j in range(self.n_col):
                 phi_j = self.phi_base[j]
-                Lu_j = (edp_params['p'] * sp.diff(phi_j, x, 2) + 
-                         edp_params['q'] * sp.diff(phi_j, x) + 
-                         edp_params['r'] * phi_j)
+                Lu_j = (edp_params['p'] * sp.diff(phi_j, x, 2) +
+                        edp_params['q'] * sp.diff(phi_j, x) +
+                        edp_params['r'] * phi_j)
 
                 Lu_j_func = sp.lambdify(x, Lu_j, 'numpy')
                 try:
@@ -46,19 +53,18 @@ class MetodoColocacao:
         except:
             coef = np.zeros(self.n_col)
 
-        def solucao(x_val):
-            resultado = np.zeros_like(x_val)
-            for i, c in enumerate(coef):
-                phi_func = sp.lambdify(x, self.phi_base[i], 'numpy')
-                try:
-                    resultado += c * phi_func(x_val)
-                except:
-                    pass
+        # Calcula a solução aproximada nos pontos do domínio
+        x_vals = np.linspace(a, b, self.n_pontos)
+        resultado = np.zeros_like(x_vals)
+        for i, c in enumerate(coef):
+            phi_func = sp.lambdify(x, self.phi_base[i], 'numpy')
+            try:
+                resultado += c * phi_func(x_vals)
+            except:
+                pass
 
-            if self.condicoes_contorno['tipo'] == 'dirichlet':
-                u_a, u_b = self.condicoes_contorno['valores']
-                resultado += u_a + (u_b - u_a) * (x_val - a) / (b - a)
+        if self.condicoes_contorno['tipo'] == 'dirichlet':
+            u_a, u_b = self.condicoes_contorno['valores']
+            resultado += u_a + (u_b - u_a) * (x_vals - a) / (b - a)
 
-            return resultado
-
-        return solucao, coef
+        return resultado, coef
