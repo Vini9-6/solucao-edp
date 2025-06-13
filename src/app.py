@@ -163,9 +163,17 @@ class EDPSolverApp:
                     background='#222', foreground='#fff', activeBackground='#444', activeForeground='#fff')
                 style.configure('.', background='#222', foreground='#fff')
                 style.configure('TLabel', background='#222', foreground='#fff')
-                style.configure(
-                    'TEntry', fieldbackground='#333', foreground='#fff')
                 style.configure('TFrame', background='#222')
+                style.configure('TButton', background='#444',
+                                foreground='#fff')
+                style.configure(
+                    'Big.TButton', background='#444', foreground='#fff')
+                style.configure('TEntry', fieldbackground='#333',
+                                foreground='#fff', background='#333')
+                style.map('TButton', background=[
+                          ('active', '#555')], foreground=[('active', '#fff')])
+                style.map('Big.TButton', background=[
+                          ('active', '#555')], foreground=[('active', '#fff')])
                 self.theme = 'dark'
             else:
                 self.root.tk_setPalette(
@@ -173,9 +181,17 @@ class EDPSolverApp:
                 style.configure('.', background='#f0f0f0', foreground='#000')
                 style.configure('TLabel', background='#f0f0f0',
                                 foreground='#000')
-                style.configure(
-                    'TEntry', fieldbackground='#fff', foreground='#000')
                 style.configure('TFrame', background='#f0f0f0')
+                style.configure('TButton', background='#ececec',
+                                foreground='#000')
+                style.configure(
+                    'Big.TButton', background='#ececec', foreground='#000')
+                style.configure('TEntry', fieldbackground='#fff',
+                                foreground='#000', background='#fff')
+                style.map('TButton', background=[
+                          ('active', '#ddd')], foreground=[('active', '#000')])
+                style.map('Big.TButton', background=[
+                          ('active', '#ddd')], foreground=[('active', '#000')])
                 self.theme = 'light'
         ttk.Button(config_frame, text="Alternar Tema Claro/Escuro", command=toggle_theme,
                    style="Big.TButton").grid(row=8, column=0, columnspan=3, pady=10)
@@ -203,7 +219,7 @@ class EDPSolverApp:
             self.frame_ajuda, height=30, font=("Arial", 14))
         help_text.pack(fill='both', expand=True, padx=10, pady=10)
         help_text.insert(tk.END, """
-Bem-vindo ao EDP Solver!
+Bem-vindo ao EDP Solver! :)
 
 Este sistema resolve EDPs unidimensionais de segunda ordem usando diversos métodos numéricos.
 
@@ -232,14 +248,14 @@ Métodos implementados:
 Dicas:
 - Use funções do sympy em f(x), p(x), q(x), r(x) (ex: sin(pi*x), exp(x), x**2).
 - O número de pontos afeta a precisão e o tempo de cálculo.
-- Para comparar com solução analítica, insira a expressão correta e compare os gráficos.
+
 
 Sobre os resultados:
 - Os coeficientes são os pesos das funções base na solução aproximada.
 - O erro RMS mostra a diferença entre as soluções dos métodos.
 - O gráfico compara visualmente as soluções.
 
-Última atualização: 12/06/2025
+Última atualização: 12/06/2025 
 """)
         help_text.config(state='disabled')
 
@@ -442,8 +458,9 @@ Sobre os resultados:
             q = sp.sympify(self.entry_q.get())
             r = sp.sympify(self.entry_r.get())
             f = sp.sympify(self.entry_f.get())
-            eq = sp.Eq(p*sp.Derivative('u(x)', x, 2) + q *
-                       sp.Derivative('u(x)', x) + r*sp.Symbol('u(x)'), f)
+            # Corrige: Derivadas devem ser de uma função simbólica, não string
+            u = sp.Function('u')(x)
+            eq = sp.Eq(p*sp.diff(u, x, 2) + q*sp.diff(u, x) + r*u, f)
             eq_str = sp.latex(eq)
             # Exibe em um widget de texto ou label
             if hasattr(self, 'equation_label'):
