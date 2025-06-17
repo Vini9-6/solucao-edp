@@ -1,1 +1,57 @@
-/.venv/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches
+*.cache
+*.pyo
+*.pyd
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+*.spec
+
+# PyInstaller
+#  Inclui pastas e arquivos gerados pelo PyInstaller
+*.spec
+build/
+dist/
+*.exe
+*.dll
+*.manifest
+*.log
+
+# VSCode
+.vscode/
+
+# Ambiente virtual
+.venv/
+venv/
+ENV/
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.bak
+~$*
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Outros
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Ignore arquivos de saída do relatório
+edp_grafico.png
+
+# Ignore arquivos de configuração do Windows
+Desktop.ini
