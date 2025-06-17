@@ -153,51 +153,10 @@ class EDPSolverApp:
         style = ttk.Style()
         style.configure("Big.TButton", font=fonte)
 
-        # Botão para alternar tema claro/escuro
-        self.theme = 'light'
-
-        def toggle_theme():
-            # Alterna entre tema claro e escuro
-            if self.theme == 'light':
-                self.root.tk_setPalette(
-                    background='#222', foreground='#fff', activeBackground='#444', activeForeground='#fff')
-                style.configure('.', background='#222', foreground='#fff')
-                style.configure('TLabel', background='#222', foreground='#fff')
-                style.configure('TFrame', background='#222')
-                style.configure('TButton', background='#444',
-                                foreground='#fff')
-                style.configure(
-                    'Big.TButton', background='#444', foreground='#fff')
-                style.configure('TEntry', fieldbackground='#333',
-                                foreground='#fff', background='#333')
-                style.map('TButton', background=[
-                          ('active', '#555')], foreground=[('active', '#fff')])
-                style.map('Big.TButton', background=[
-                          ('active', '#555')], foreground=[('active', '#fff')])
-                self.theme = 'dark'
-            else:
-                self.root.tk_setPalette(
-                    background='#f0f0f0', foreground='#000', activeBackground='#ececec', activeForeground='#000')
-                style.configure('.', background='#f0f0f0', foreground='#000')
-                style.configure('TLabel', background='#f0f0f0',
-                                foreground='#000')
-                style.configure('TFrame', background='#f0f0f0')
-                style.configure('TButton', background='#ececec',
-                                foreground='#000')
-                style.configure(
-                    'Big.TButton', background='#ececec', foreground='#000')
-                style.configure('TEntry', fieldbackground='#fff',
-                                foreground='#000', background='#fff')
-                style.map('TButton', background=[
-                          ('active', '#ddd')], foreground=[('active', '#000')])
-                style.map('Big.TButton', background=[
-                          ('active', '#ddd')], foreground=[('active', '#000')])
-                self.theme = 'light'
-        ttk.Button(config_frame, text="Alternar Tema Claro/Escuro", command=toggle_theme,
-                   style="Big.TButton").grid(row=8, column=0, columnspan=3, pady=10)
-        # Botão para visualizar a equação simbólica
-        ttk.Button(config_frame, text="Visualizar Equação", command=self.display_equation,
-                   style="Big.TButton").grid(row=9, column=0, columnspan=3, pady=10)
+        # Informações de autoria e local
+        label_autoria = ttk.Label(config_frame, text="São Luís, MA\n2025\ndesenvolvido por Vinicius Oliveira e Luys Arthur", font=(
+            "Arial", 14), anchor='center', justify='center')
+        label_autoria.grid(row=10, column=0, columnspan=3, pady=(30, 5))
 
     def create_results_frame(self):
         # Frame para exibir os resultados numéricos dos métodos
@@ -449,32 +408,6 @@ Sobre os resultados:
             self.figura, master=self.frame_relatorio)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(fill='both', expand=True, padx=10, pady=10)
-
-    def display_equation(self):
-        # Monta e exibe a equação simbólica da EDP baseada nos parâmetros do usuário
-        try:
-            x = sp.Symbol('x')
-            p = sp.sympify(self.entry_p.get())
-            q = sp.sympify(self.entry_q.get())
-            r = sp.sympify(self.entry_r.get())
-            f = sp.sympify(self.entry_f.get())
-            # Corrige: Derivadas devem ser de uma função simbólica, não string
-            u = sp.Function('u')(x)
-            eq = sp.Eq(p*sp.diff(u, x, 2) + q*sp.diff(u, x) + r*u, f)
-            eq_str = sp.latex(eq)
-            # Exibe em um widget de texto ou label
-            if hasattr(self, 'equation_label'):
-                self.equation_label.config(
-                    text=f"Equação montada: $${eq_str}$$")
-            else:
-                self.equation_label = tk.Label(self.frame_config, text=f"Equação montada: $${eq_str}$$", font=(
-                    "Arial", 16), anchor='w', justify='left')
-                self.equation_label.pack(
-                    fill='x', padx=10, pady=10, after=self.frame_config.winfo_children()[-1])
-        except Exception:
-            if hasattr(self, 'equation_label'):
-                self.equation_label.config(
-                    text="Equação inválida. Corrija os parâmetros.")
 
     def export_report_pdf(self):
         # Exporta o relatório e o gráfico para um arquivo PDF
