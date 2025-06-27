@@ -88,66 +88,70 @@ class EDPSolverApp:
             widget.bind("<Leave>", on_leave)
 
         # Criação dos campos de entrada e tooltips
+        label_eq = ttk.Label(config_frame, text="Equação utilizada:  p(x)·u''(x) + q(x)·u'(x) + r(x)·u(x) = f(x)",
+                             font=("Arial", 16, "bold"), anchor='center', justify='center', foreground='#1a237e')
+        label_eq.grid(row=0, column=0, columnspan=3, pady=(0, 20))
+
         label_p = ttk.Label(config_frame, text="p(x):", font=fonte)
-        label_p.grid(row=0, column=0, sticky='w')
+        label_p.grid(row=1, column=0, sticky='w')
         self.entry_p = ttk.Entry(config_frame, font=fonte)
-        self.entry_p.grid(row=0, column=1, padx=5)
+        self.entry_p.grid(row=1, column=1, padx=5)
         add_tooltip(label_p, tooltips['p(x)'])
         add_tooltip(self.entry_p, tooltips['p(x)'])
 
         label_q = ttk.Label(config_frame, text="q(x):", font=fonte)
-        label_q.grid(row=1, column=0, sticky='w')
+        label_q.grid(row=2, column=0, sticky='w')
         self.entry_q = ttk.Entry(config_frame, font=fonte)
-        self.entry_q.grid(row=1, column=1, padx=5)
+        self.entry_q.grid(row=2, column=1, padx=5)
         add_tooltip(label_q, tooltips['q(x)'])
         add_tooltip(self.entry_q, tooltips['q(x)'])
 
         label_r = ttk.Label(config_frame, text="r(x):", font=fonte)
-        label_r.grid(row=2, column=0, sticky='w')
+        label_r.grid(row=3, column=0, sticky='w')
         self.entry_r = ttk.Entry(config_frame, font=fonte)
-        self.entry_r.grid(row=2, column=1, padx=5)
+        self.entry_r.grid(row=3, column=1, padx=5)
         add_tooltip(label_r, tooltips['r(x)'])
         add_tooltip(self.entry_r, tooltips['r(x)'])
 
         label_f = ttk.Label(config_frame, text="f(x):", font=fonte)
-        label_f.grid(row=3, column=0, sticky='w')
+        label_f.grid(row=4, column=0, sticky='w')
         self.entry_f = ttk.Entry(config_frame, font=fonte)
-        self.entry_f.grid(row=3, column=1, padx=5)
+        self.entry_f.grid(row=4, column=1, padx=5)
         add_tooltip(label_f, tooltips['f(x)'])
         add_tooltip(self.entry_f, tooltips['f(x)'])
 
         label_dom = ttk.Label(config_frame, text="Domínio [a, b]:", font=fonte)
-        label_dom.grid(row=4, column=0, sticky='w')
+        label_dom.grid(row=5, column=0, sticky='w')
         self.entry_a = ttk.Entry(config_frame, font=fonte)
-        self.entry_a.grid(row=4, column=1, padx=5)
+        self.entry_a.grid(row=5, column=1, padx=5)
         self.entry_b = ttk.Entry(config_frame, font=fonte)
-        self.entry_b.grid(row=4, column=2, padx=5)
+        self.entry_b.grid(row=5, column=2, padx=5)
         add_tooltip(label_dom, tooltips['Domínio [a, b]'])
         add_tooltip(self.entry_a, tooltips['Domínio [a, b]'])
         add_tooltip(self.entry_b, tooltips['Domínio [a, b]'])
 
         label_cc = ttk.Label(
             config_frame, text="Condições de Contorno:", font=fonte)
-        label_cc.grid(row=5, column=0, sticky='w')
+        label_cc.grid(row=6, column=0, sticky='w')
         self.entry_ua = ttk.Entry(config_frame, font=fonte)
-        self.entry_ua.grid(row=5, column=1, padx=5)
+        self.entry_ua.grid(row=6, column=1, padx=5)
         self.entry_ub = ttk.Entry(config_frame, font=fonte)
-        self.entry_ub.grid(row=5, column=2, padx=5)
+        self.entry_ub.grid(row=6, column=2, padx=5)
         add_tooltip(label_cc, tooltips['Condições de Contorno'])
         add_tooltip(self.entry_ua, tooltips['Condições de Contorno'])
         add_tooltip(self.entry_ub, tooltips['Condições de Contorno'])
 
         label_np = ttk.Label(
             config_frame, text="Número de Pontos:", font=fonte)
-        label_np.grid(row=6, column=0, sticky='w')
+        label_np.grid(row=7, column=0, sticky='w')
         self.entry_n_pontos = ttk.Entry(config_frame, font=fonte)
-        self.entry_n_pontos.grid(row=6, column=1, padx=5)
+        self.entry_n_pontos.grid(row=7, column=1, padx=5)
         add_tooltip(label_np, tooltips['Número de Pontos'])
         add_tooltip(self.entry_n_pontos, tooltips['Número de Pontos'])
 
         # Botão para resolver a EDP
         ttk.Button(config_frame, text="Resolver EDP", command=self.solve_edp, style="Big.TButton").grid(
-            row=7, column=0, columnspan=3, pady=10)
+            row=8, column=0, columnspan=3, pady=10)
 
         # Estilo para botão maior
         style = ttk.Style()
@@ -156,7 +160,7 @@ class EDPSolverApp:
         # Informações de autoria e local
         label_autoria = ttk.Label(config_frame, text="São Luís, MA\n2025\ndesenvolvido por Vinicius Oliveira e Luys Arthur", font=(
             "Arial", 14), anchor='center', justify='center')
-        label_autoria.grid(row=10, column=0, columnspan=3, pady=(30, 5))
+        label_autoria.grid(row=9, column=0, columnspan=3, pady=(30, 5))
 
     def create_results_frame(self):
         # Frame para exibir os resultados numéricos dos métodos
