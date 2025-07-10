@@ -88,10 +88,6 @@ class EDPSolverApp:
             widget.bind("<Leave>", on_leave)
 
         # Criação dos campos de entrada e tooltips
-        label_eq = ttk.Label(config_frame, text="Equação utilizada:  p(x)·u''(x) + q(x)·u'(x) + r(x)·u(x) = f(x)",
-                             font=("Arial", 16, "bold"), anchor='center', justify='center', foreground='#1a237e')
-        label_eq.grid(row=0, column=0, columnspan=3, pady=(0, 20))
-
         label_p = ttk.Label(config_frame, text="p(x):", font=fonte)
         label_p.grid(row=1, column=0, sticky='w')
         self.entry_p = ttk.Entry(config_frame, font=fonte)
@@ -182,45 +178,65 @@ class EDPSolverApp:
             self.frame_ajuda, height=30, font=("Arial", 14))
         help_text.pack(fill='both', expand=True, padx=10, pady=10)
         help_text.insert(tk.END, """
-Bem-vindo ao EDP Solver! :)
+🎉 Bem-vindo ao EDP Solver! 🎉
 
-Este sistema resolve EDPs unidimensionais de segunda ordem usando diversos métodos numéricos.
+Este programa foi desenvolvido para fins educacionais.
+
+""")
+        help_text.insert(tk.END, """
+O que são EDPs?
+Equações Diferenciais Parciais (EDPs) são equações matemáticas que envolvem derivadas parciais de uma função desconhecida de duas ou mais variáveis independentes. Elas modelam fenômenos físicos como calor, difusão, vibração de membranas, eletromagnetismo, entre outros.
+
+Sobre os campos de entrada:
+- p(x,y), q(x,y), r(x,y): coeficientes da EDP. Podem ser constantes ou funções de x e y.
+- f(x,y): termo fonte ou função do lado direito da EDP.
+- Domínio [a, b] x [c, d]: limites do retângulo onde a solução será calculada. Exemplo: 0   1 
+- Condições de contorno (u(a,y), u(b,y), u(x,c), u(x,d)): valores da solução nas bordas do domínio. Exemplo: 0   0 
+- Número de pontos (x, y): quantidade de pontos de discretização em cada direção. Exemplo: 10  
+
+O que digitar em cada campo?
+- Nos campos de coeficientes e f(x,y):
+  - Aceite expressões simbólicas do sympy, como: x, y, x**2, y**2, sin(pi*x), exp(x*y), x+y, etc.
+  - Operadores permitidos: +, -, *, /, ** (potência)
+  - Constantes permitidas: pi, E, exp, sqrt, etc.
+  - Não use letras diferentes de x e y (exceto constantes do sympy).
+- Nos campos de domínio, condições de contorno e número de pontos:
+  - Aceite apenas números reais (ex: 0, 1, -2.5, 3.14) ou inteiros (para número de pontos).
+
+Exemplo completo de preenchimento:
+  p(x,y): 1
+  q(x,y): 1
+  r(x,y): 0
+  f(x,y): sin(pi*x)
+  Domínio: 0   1 
+  Condições de contorno: 0   0
+  Número de pontos: 10 
 
 Como usar:
 1. Preencha os campos da aba Configuração com os parâmetros da EDP.
 2. Clique em 'Resolver EDP'.
-3. Veja os resultados, relatórios e gráficos nas abas correspondentes.
-
-Exemplo de entrada:
-  p(x): 1
-  q(x): 0
-  r(x): 0
-  f(x): sin(pi*x)
-  Domínio: 0   1
-  Condições de contorno: 0   0
-  Número de pontos: 10
-
-Métodos implementados:
-- Rayleigh-Ritz
-- Galerkin
-- Colocação
-- Momentos
-- Subdomínios
-- Mínimos Quadrados
+3. Veja os resultados, relatórios e mapas de calor nas abas correspondentes.
 
 Dicas:
-- Use funções do sympy em f(x), p(x), q(x), r(x) (ex: sin(pi*x), exp(x), x**2).
-- O número de pontos afeta a precisão e o tempo de cálculo.
-
+- O número de pontos afeta a precisão e o tempo de cálculo. Para testes rápidos, use valores menores.
+- As condições de contorno são aplicadas nas quatro bordas do domínio retangular.
+- O relatório pode ser exportado em PDF, incluindo o gráfico.
+- O sistema é voltado para EDPs lineares de segunda ordem em domínios retangulares.
 
 Sobre os resultados:
 - Os coeficientes são os pesos das funções base na solução aproximada.
 - O erro RMS mostra a diferença entre as soluções dos métodos.
-- O gráfico compara visualmente as soluções.
 
-Última atualização: 12/06/2025 
+
+Última atualização: 27/06/2025
 """)
         help_text.config(state='disabled')
+        help_text.insert(tk.END, """
+
+---
+Licença: MIT
+Desenvolvido por Vinicius Oliveira e Luys Arthur.
+""")
 
     def validate_inputs(self):
         # Valida todos os campos de entrada da interface
