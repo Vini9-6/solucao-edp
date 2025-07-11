@@ -32,6 +32,8 @@ class RayleighRitz(EDPSolver):
 
     def resolver(self, edp_params):
         x = sp.Symbol('x')
+        if not isinstance(edp_params['f'], sp.Basic):
+            raise TypeError(f"O parâmetro 'f' deve ser expressão simbólica do SymPy, recebido: {type(edp_params['f'])}")
         a, b = self.dominio
 
         # ✅ 2. Montagem da matriz de rigidez K
@@ -81,8 +83,9 @@ class RayleighRitz(EDPSolver):
                 pass
 
         # ✅ 6. Ajuste das condições de contorno (Dirichlet)
-        if self.condicoes_contorno['tipo'] == 'dirichlet':
-            u_a, u_b = self.condicoes_contorno['valores']
-            resultado += u_a + (u_b - u_a) * (x_vals - a) / (b - a)
+        # Removido o ajuste manual da solução estacionária para problemas dinâmicos
+        #if self.condicoes_contorno['tipo'] == 'dirichlet':
+        #    u_a, u_b = self.condicoes_contorno['valores']
+        #    resultado += u_a + (u_b - u_a) * (x_vals - a) / (b - a)
 
         return resultado, coef
