@@ -58,15 +58,19 @@ class EDPSolverApp:
             self.frame_config, text="Configurações da EDP", padding=10)
         config_frame.pack(fill='x', padx=10, pady=10)
 
-        # Tooltips explicativos para cada campo
+        # Tooltips explicativos para cada campo, incluindo temporais
         tooltips = {
-            'p(x)': 'Coeficiente de u"(x) na EDP. Ex: 1, x, exp(x)',
-            'q(x)': 'Coeficiente de u\'(x) na EDP. Ex: 0, x**2',
-            'r(x)': 'Coeficiente de u(x) na EDP. Ex: 0, 2',
-            'f(x)': 'Função do lado direito. Ex: sin(pi*x), x**2',
-            'Domínio [a, b]': 'Extremos do domínio. Ex: 0 e 1',
-            'Condições de Contorno': 'Valores de u(a) e u(b)',
-            'Número de Pontos': 'Quantidade de pontos de discretização'
+            'p(x)': 'Coeficiente de u"(x) na EDP. Exemplo: 1, x, exp(x)',
+            'q(x)': 'Coeficiente de u\'(x) na EDP. Exemplo: 0, x**2',
+            'r(x)': 'Coeficiente de u(x) na EDP. Exemplo: 0, 2',
+            'f(x)': 'Função do lado direito. Exemplo: sin(pi*x), x**2',
+            'Domínio [a, b]': 'Extremos do domínio. Exemplo: 0 e 1',
+            'Condições de Contorno': 'Valores de u(a) e u(b). Exemplo: 0 e 0',
+            'Número de Pontos': 'Quantidade de pontos de discretização. Exemplo: 20',
+            'u(x,0)': 'Condição inicial. Exemplo para Calor: 3*sin(2*pi*x/1). Para Onda: sin(pi*x)',
+            'v(x,0)': 'Velocidade inicial (apenas Onda). Exemplo: 0',
+            'dt': 'Passo de tempo Δt. Exemplo: 0.01',
+            'tmax': 'Tempo máximo T_max. Exemplo: 1.0'
         }
 
         def add_tooltip(widget, text):
@@ -87,36 +91,48 @@ class EDPSolverApp:
             widget.bind("<Enter>", on_enter)
             widget.bind("<Leave>", on_leave)
 
+        # Adiciona seleção do tipo de equação no topo do frame de configuração
+        label_tipo_equacao = ttk.Label(config_frame, text="Tipo de Equação:", font=fonte)
+        label_tipo_equacao.grid(row=0, column=0, sticky='w')
+        self.edp_var = ttk.Combobox(config_frame, values=[
+            "Poisson",
+            "Calor",
+            "Onda",
+            "Helmholtz"
+        ], state="readonly", width=18, font=fonte)
+        self.edp_var.current(0)
+        self.edp_var.grid(row=0, column=1, padx=5)
+
         # Criação dos campos de entrada e tooltips
-        label_p = ttk.Label(config_frame, text="p(x):", font=fonte)
+        label_p = ttk.Label(config_frame, text="Coeficiente p(x):", font=fonte)
         label_p.grid(row=1, column=0, sticky='w')
         self.entry_p = ttk.Entry(config_frame, font=fonte)
         self.entry_p.grid(row=1, column=1, padx=5)
         add_tooltip(label_p, tooltips['p(x)'])
         add_tooltip(self.entry_p, tooltips['p(x)'])
 
-        label_q = ttk.Label(config_frame, text="q(x):", font=fonte)
+        label_q = ttk.Label(config_frame, text="Coeficiente q(x):", font=fonte)
         label_q.grid(row=2, column=0, sticky='w')
         self.entry_q = ttk.Entry(config_frame, font=fonte)
         self.entry_q.grid(row=2, column=1, padx=5)
         add_tooltip(label_q, tooltips['q(x)'])
         add_tooltip(self.entry_q, tooltips['q(x)'])
 
-        label_r = ttk.Label(config_frame, text="r(x):", font=fonte)
+        label_r = ttk.Label(config_frame, text="Coeficiente r(x):", font=fonte)
         label_r.grid(row=3, column=0, sticky='w')
         self.entry_r = ttk.Entry(config_frame, font=fonte)
         self.entry_r.grid(row=3, column=1, padx=5)
         add_tooltip(label_r, tooltips['r(x)'])
         add_tooltip(self.entry_r, tooltips['r(x)'])
 
-        label_f = ttk.Label(config_frame, text="f(x):", font=fonte)
+        label_f = ttk.Label(config_frame, text="Termo fonte f(x):", font=fonte)
         label_f.grid(row=4, column=0, sticky='w')
         self.entry_f = ttk.Entry(config_frame, font=fonte)
         self.entry_f.grid(row=4, column=1, padx=5)
         add_tooltip(label_f, tooltips['f(x)'])
         add_tooltip(self.entry_f, tooltips['f(x)'])
 
-        label_dom = ttk.Label(config_frame, text="Domínio [a, b]:", font=fonte)
+        label_dom = ttk.Label(config_frame, text="Domínio espacial [a, b]:", font=fonte)
         label_dom.grid(row=5, column=0, sticky='w')
         self.entry_a = ttk.Entry(config_frame, font=fonte)
         self.entry_a.grid(row=5, column=1, padx=5)
@@ -127,7 +143,7 @@ class EDPSolverApp:
         add_tooltip(self.entry_b, tooltips['Domínio [a, b]'])
 
         label_cc = ttk.Label(
-            config_frame, text="Condições de Contorno:", font=fonte)
+            config_frame, text="Cond. de contorno u(a), u(b):", font=fonte)
         label_cc.grid(row=6, column=0, sticky='w')
         self.entry_ua = ttk.Entry(config_frame, font=fonte)
         self.entry_ua.grid(row=6, column=1, padx=5)
@@ -138,25 +154,68 @@ class EDPSolverApp:
         add_tooltip(self.entry_ub, tooltips['Condições de Contorno'])
 
         label_np = ttk.Label(
-            config_frame, text="Número de Pontos:", font=fonte)
+            config_frame, text="Nº de pontos (N):", font=fonte)
         label_np.grid(row=7, column=0, sticky='w')
         self.entry_n_pontos = ttk.Entry(config_frame, font=fonte)
         self.entry_n_pontos.grid(row=7, column=1, padx=5)
         add_tooltip(label_np, tooltips['Número de Pontos'])
         add_tooltip(self.entry_n_pontos, tooltips['Número de Pontos'])
 
+        # Campos extras para EDPs temporais
+        self.label_u0 = ttk.Label(config_frame, text="Condição inicial u(x,0):", font=fonte)
+        self.entry_u0 = ttk.Entry(config_frame, font=fonte)
+        add_tooltip(self.label_u0, tooltips['u(x,0)'])
+        add_tooltip(self.entry_u0, tooltips['u(x,0)'])
+        self.label_v0 = ttk.Label(config_frame, text="Velocidade inicial v(x,0):", font=fonte)
+        self.entry_v0 = ttk.Entry(config_frame, font=fonte)
+        add_tooltip(self.label_v0, tooltips['v(x,0)'])
+        add_tooltip(self.entry_v0, tooltips['v(x,0)'])
+        # Campos extras para Δt e T_max, se existirem
+        if not hasattr(self, 'entry_dt'):
+            self.label_dt = ttk.Label(config_frame, text="Passo de tempo Δt:", font=fonte)
+            self.entry_dt = ttk.Entry(config_frame, font=fonte)
+            self.label_dt.grid(row=12, column=0, sticky='w')
+            self.entry_dt.grid(row=12, column=1, padx=5)
+            add_tooltip(self.label_dt, tooltips['dt'])
+            add_tooltip(self.entry_dt, tooltips['dt'])
+        if not hasattr(self, 'entry_tmax'):
+            self.label_tmax = ttk.Label(config_frame, text="Tempo máximo T_max:", font=fonte)
+            self.entry_tmax = ttk.Entry(config_frame, font=fonte)
+            self.label_tmax.grid(row=13, column=0, sticky='w')
+            self.entry_tmax.grid(row=13, column=1, padx=5)
+            add_tooltip(self.label_tmax, tooltips['tmax'])
+            add_tooltip(self.entry_tmax, tooltips['tmax'])
+        # Esconde inicialmente
+        self.label_u0.grid_remove()
+        self.entry_u0.grid_remove()
+        self.label_v0.grid_remove()
+        self.entry_v0.grid_remove()
+        # Bind para atualizar campos ao trocar o tipo de equação
+        self.edp_var.bind("<<ComboboxSelected>>", self.on_edp_change)
+
+        # Exibição simbólica da equação
+        self.equation_fig = plt.Figure(figsize=(8, 1.2), dpi=100)
+        self.equation_ax = self.equation_fig.add_subplot(111)
+        self.equation_ax.axis('off')
+        self.equation_canvas = FigureCanvasTkAgg(self.equation_fig, master=config_frame)
+        self.equation_canvas.get_tk_widget().grid(row=0, column=3, rowspan=3, padx=20, pady=5, sticky='n')
+        self.update_equation_display()
+
         # Botão para resolver a EDP
-        ttk.Button(config_frame, text="Resolver EDP", command=self.solve_edp, style="Big.TButton").grid(
+        ttk.Button(config_frame, text="Resolver", command=self.solve_edp, style="Big.TButton").grid(
             row=8, column=0, columnspan=3, pady=10)
+
+        # Botão de exemplo
+        ttk.Button(config_frame, text="PreencherExemplo", command=self.preencher_exemplo, style="Big.TButton").grid(
+            row=8, column=3, padx=10, pady=10)
 
         # Estilo para botão maior
         style = ttk.Style()
         style.configure("Big.TButton", font=fonte)
 
-        # Informações de autoria e local
-        label_autoria = ttk.Label(config_frame, text="São Luís, MA\n2025\ndesenvolvido por Vinicius Oliveira e Luys Arthur", font=(
-            "Arial", 14), anchor='center', justify='center')
-        label_autoria.grid(row=9, column=0, columnspan=3, pady=(30, 5))
+        # Informações de autoria e local no rodapé
+        self.label_autoria = ttk.Label(self.frame_config, text="São Luís, MA\n2025\ndesenvolvido por Vinicius Oliveira e Luys Arthur", font=("Arial", 9), anchor='center', justify='center')
+        self.label_autoria.pack(side='bottom', pady=(20, 5))
 
     def create_results_frame(self):
         # Frame para exibir os resultados numéricos dos métodos
@@ -298,6 +357,16 @@ Desenvolvido por Vinicius Oliveira e Luys Arthur.
         return True
 
     def solve_edp(self):
+        # Função utilitária para converter expressões para float de forma robusta
+        def safe_float(expr, default):
+            try:
+                val = sp.sympify(expr).evalf()
+                if hasattr(val, 'is_real') and not val.is_real:
+                    return default
+                return float(val)
+            except Exception:
+                return default
+
         # Executa a resolução da EDP usando todos os métodos numéricos
         if not self.validate_inputs():
             return
@@ -313,40 +382,110 @@ Desenvolvido por Vinicius Oliveira e Luys Arthur.
         pb.start(10)
         self.root.update_idletasks()
         try:
-            # Lê e converte os parâmetros da interface
-            p = sp.sympify(self.entry_p.get())
-            q = sp.sympify(self.entry_q.get())
-            r = sp.sympify(self.entry_r.get())
-            f = sp.sympify(self.entry_f.get())
+            tipo = self.edp_var.get()
             a = float(self.entry_a.get())
             b = float(self.entry_b.get())
             ua = float(self.entry_ua.get())
             ub = float(self.entry_ub.get())
             n_pontos = int(self.entry_n_pontos.get())
-
-            edp_params = {'p': p, 'q': q, 'r': r, 'f': f}
-            condicoes_contorno = {'tipo': 'dirichlet', 'valores': (ua, ub)}
-
             self.resultados = {}
-            # Dicionário de métodos numéricos disponíveis
-            methods = {
-                'Rayleigh-Ritz': RayleighRitz,
-                'Galerkin': Galerkin,
-                'Colocação': MetodoColocacao,
-                'Momentos': MetodoMomentos,
-                'Subdomínios': MetodoSubdominios,
-                'Mínimos Quadrados': MetodoMinimosQuadrados
-            }
-
-            # Executa cada método e armazena os resultados
-            for name, method in methods.items():
-                solver = method((a, b), n_pontos, condicoes_contorno)
-                solution, coefficients = solver.resolver(edp_params)
-                self.resultados[name] = {
-                    'solution': solution, 'coefficients': coefficients}
-
-            self.display_results()
-            self.display_report()  # Preenche o relatório
+            if tipo == "Onda":
+                from time_solvers import onda_1d
+                f_expr = self.entry_f.get()
+                if not isinstance(f_expr, str):
+                    messagebox.showerror("Erro", "O termo fonte f(x) deve ser uma expressão simbólica (ex: 0, sin(pi*x)). Não use arrays NumPy.")
+                    pb.stop()
+                    progress.destroy()
+                    return
+                u0_expr = self.entry_u0.get()
+                v0_expr = self.entry_v0.get()
+                dt = safe_float(self.entry_dt.get() if hasattr(self, 'entry_dt') else '', 0.01)
+                tmax = safe_float(self.entry_tmax.get() if hasattr(self, 'entry_tmax') else '', 1.0)
+                if dt <= 0:
+                    messagebox.showerror("Erro", "O valor de Δt deve ser um número real positivo.")
+                    pb.stop()
+                    progress.destroy()
+                    return
+                if tmax <= 0:
+                    messagebox.showerror("Erro", "O valor de T_max deve ser um número real positivo.")
+                    pb.stop()
+                    progress.destroy()
+                    return
+                try:
+                    n_passos = int(tmax / dt)
+                    if n_passos < 1:
+                        n_passos = 1
+                except Exception:
+                    n_passos = 100
+                for metodo in [
+                    'Rayleigh-Ritz', 'Galerkin', 'Colocação', 'Momentos', 'Subdomínios', 'Mínimos Quadrados']:
+                    x_vals, resultados = onda_1d.solve_onda_1d(
+                        f_expr, u0_expr, v0_expr, a, b, ua, ub, n_pontos, dt, n_passos, metodo=metodo)
+                    sol_final = resultados[-1]
+                    info = f"máx: {np.max(sol_final):.4g}, mín: {np.min(sol_final):.4g}"
+                    self.resultados[metodo] = {
+                        'solution': sol_final,
+                        'coefficients': info
+                    }
+                self.display_results()
+                self.display_report()
+            elif tipo == "Calor":
+                from time_solvers import calor_1d
+                f_expr = self.entry_f.get()
+                u0_expr = self.entry_u0.get()
+                dt = safe_float(self.entry_dt.get() if hasattr(self, 'entry_dt') else '', 0.01)
+                tmax = safe_float(self.entry_tmax.get() if hasattr(self, 'entry_tmax') else '', 1.0)
+                if dt <= 0:
+                    messagebox.showerror("Erro", "O valor de Δt deve ser um número real positivo.")
+                    pb.stop()
+                    progress.destroy()
+                    return
+                if tmax <= 0:
+                    messagebox.showerror("Erro", "O valor de T_max deve ser um número real positivo.")
+                    pb.stop()
+                    progress.destroy()
+                    return
+                try:
+                    n_passos = int(tmax / dt)
+                    if n_passos < 1:
+                        n_passos = 1
+                except Exception:
+                    n_passos = 100
+                for metodo in [
+                    'Rayleigh-Ritz', 'Galerkin', 'Colocação', 'Momentos', 'Subdomínios', 'Mínimos Quadrados']:
+                    x_vals, resultados = calor_1d.solve_calor_1d(
+                        f_expr, u0_expr, a, b, ua, ub, n_pontos, dt, n_passos, metodo=metodo)
+                    sol_final = resultados[-1]
+                    info = f"máx: {np.max(sol_final):.4g}, mín: {np.min(sol_final):.4g}"
+                    self.resultados[metodo] = {
+                        'solution': sol_final,
+                        'coefficients': info
+                    }
+                self.display_results()
+                self.display_report()
+            else:
+                # Poisson e Helmholtz (estacionárias)
+                p = sp.sympify(self.entry_p.get())
+                q = sp.sympify(self.entry_q.get())
+                r = sp.sympify(self.entry_r.get())
+                f = sp.sympify(self.entry_f.get())
+                edp_params = {'p': p, 'q': q, 'r': r, 'f': f}
+                condicoes_contorno = {'tipo': 'dirichlet', 'valores': (ua, ub)}
+                methods = {
+                    'Rayleigh-Ritz': RayleighRitz,
+                    'Galerkin': Galerkin,
+                    'Colocação': MetodoColocacao,
+                    'Momentos': MetodoMomentos,
+                    'Subdomínios': MetodoSubdominios,
+                    'Mínimos Quadrados': MetodoMinimosQuadrados
+                }
+                for name, method in methods.items():
+                    solver = method((a, b), n_pontos, condicoes_contorno)
+                    solution, coefficients = solver.resolver(edp_params)
+                    self.resultados[name] = {
+                        'solution': solution, 'coefficients': coefficients}
+                self.display_results()
+                self.display_report()
         except Exception as e:
             messagebox.showerror("Erro", str(e))
         finally:
@@ -367,8 +506,9 @@ Desenvolvido por Vinicius Oliveira e Luys Arthur.
     def display_report(self):
         # Gera o relatório completo, incluindo comparação e gráfico
         self.report_text.delete(1.0, tk.END)
+        tipo = self.edp_var.get() if hasattr(self, 'edp_var') else ''
         self.report_text.insert(
-            tk.END, 'Relatório de Métodos Numéricos para EDP\n')
+            tk.END, f'Relatório de Métodos Numéricos para EDP ({tipo})\n')
         self.report_text.insert(tk.END, '-'*50 + '\n')
         # Exibe coeficientes de cada método
         for name, result in self.resultados.items():
@@ -459,9 +599,100 @@ Desenvolvido por Vinicius Oliveira e Luys Arthur.
         except Exception:
             pass
 
+    def on_edp_change(self, event=None):
+        tipo = self.edp_var.get()
+        self.update_equation_display()
+        # Esconde extras
+        self.label_u0.grid_remove()
+        self.entry_u0.grid_remove()
+        self.label_v0.grid_remove()
+        self.entry_v0.grid_remove()
+        if tipo == "Calor":
+            self.label_u0.grid(row=10, column=0, sticky='w')
+            self.entry_u0.grid(row=10, column=1, padx=5)
+        elif tipo == "Onda":
+            self.label_u0.grid(row=10, column=0, sticky='w')
+            self.entry_u0.grid(row=10, column=1, padx=5)
+            self.label_v0.grid(row=11, column=0, sticky='w')
+            self.entry_v0.grid(row=11, column=1, padx=5)
+
+    def update_equation_display(self):
+        tipo = self.edp_var.get() if hasattr(self, 'edp_var') else 'Poisson'
+        eq_latex = {
+            'Poisson': r"-\dfrac{d^2u}{dx^2} = f(x)",
+            'Calor': r"\dfrac{\partial u}{\partial t} = \dfrac{\partial^2 u}{\partial x^2}",
+            'Onda': r"\dfrac{\partial^2 u}{\partial t^2} = \dfrac{\partial^2 u}{\partial x^2}",
+            'Helmholtz': r"-\dfrac{d^2u}{dx^2} + k^2 u = f(x)"
+        }.get(tipo, r"-\dfrac{d^2u}{dx^2} = f(x)")
+        self.equation_ax.clear()
+        self.equation_ax.axis('off')
+        self.equation_ax.text(0.5, 0.5, f"${eq_latex}$", fontsize=32, ha='center', va='center')
+        self.equation_canvas.draw()
+
+    def preencher_exemplo(self):
+        tipo = self.edp_var.get()
+        if tipo == "Poisson":
+            self.entry_p.delete(0, 'end'); self.entry_p.insert(0, '1')
+            self.entry_q.delete(0, 'end'); self.entry_q.insert(0, '0')
+            self.entry_r.delete(0, 'end'); self.entry_r.insert(0, '0')
+            self.entry_f.delete(0, 'end'); self.entry_f.insert(0, 'sin(pi*x)')
+            self.entry_a.delete(0, 'end'); self.entry_a.insert(0, '0')
+            self.entry_b.delete(0, 'end'); self.entry_b.insert(0, '1')
+            self.entry_ua.delete(0, 'end'); self.entry_ua.insert(0, '0')
+            self.entry_ub.delete(0, 'end'); self.entry_ub.insert(0, '0')
+            self.entry_n_pontos.delete(0, 'end'); self.entry_n_pontos.insert(0, '10')
+        elif tipo == "Calor":
+            L = 1
+            self.entry_p.delete(0, 'end'); self.entry_p.insert(0, '1')
+            self.entry_q.delete(0, 'end'); self.entry_q.insert(0, '0')
+            self.entry_r.delete(0, 'end'); self.entry_r.insert(0, '0')
+            self.entry_f.delete(0, 'end'); self.entry_f.insert(0, '0')
+            self.entry_a.delete(0, 'end'); self.entry_a.insert(0, '0')
+            self.entry_b.delete(0, 'end'); self.entry_b.insert(0, str(L))
+            self.entry_ua.delete(0, 'end'); self.entry_ua.insert(0, '0')
+            self.entry_ub.delete(0, 'end'); self.entry_ub.insert(0, '0')
+            self.entry_n_pontos.delete(0, 'end'); self.entry_n_pontos.insert(0, '20')
+            self.entry_u0.delete(0, 'end'); self.entry_u0.insert(0, f'3*sin(2*pi*x/{L})')
+            if hasattr(self, 'entry_dt'):
+                self.entry_dt.delete(0, 'end'); self.entry_dt.insert(0, '0.01')
+            if hasattr(self, 'entry_tmax'):
+                self.entry_tmax.delete(0, 'end'); self.entry_tmax.insert(0, '1')
+        elif tipo == "Onda":
+            self.entry_p.delete(0, 'end'); self.entry_p.insert(0, '1')
+            self.entry_q.delete(0, 'end'); self.entry_q.insert(0, '0')
+            self.entry_r.delete(0, 'end'); self.entry_r.insert(0, '0')
+            self.entry_f.delete(0, 'end'); self.entry_f.insert(0, '0')
+            self.entry_a.delete(0, 'end'); self.entry_a.insert(0, '0')
+            self.entry_b.delete(0, 'end'); self.entry_b.insert(0, '1')
+            self.entry_ua.delete(0, 'end'); self.entry_ua.insert(0, '0')
+            self.entry_ub.delete(0, 'end'); self.entry_ub.insert(0, '4')
+            self.entry_n_pontos.delete(0, 'end'); self.entry_n_pontos.insert(0, '20')
+            # Condições iniciais não nulas para propagação de onda
+            self.entry_u0.delete(0, 'end'); self.entry_u0.insert(0, 'sin(pi*x)')
+            self.entry_v0.delete(0, 'end'); self.entry_v0.insert(0, '0')
+            # Se existirem campos para dt e T_max, preencha também
+            if hasattr(self, 'entry_dt'):
+                self.entry_dt.delete(0, 'end'); self.entry_dt.insert(0, '0.01')
+            if hasattr(self, 'entry_tmax'):
+                self.entry_tmax.delete(0, 'end'); self.entry_tmax.insert(0, '1')
+        elif tipo == "Helmholtz":
+            self.entry_p.delete(0, 'end'); self.entry_p.insert(0, '1')
+            self.entry_q.delete(0, 'end'); self.entry_q.insert(0, '0')
+            self.entry_r.delete(0, 'end'); self.entry_r.insert(0, '10')
+            self.entry_f.delete(0, 'end'); self.entry_f.insert(0, 'sin(pi*x)')
+            self.entry_a.delete(0, 'end'); self.entry_a.insert(0, '0')
+            self.entry_b.delete(0, 'end'); self.entry_b.insert(0, '1')
+            self.entry_ua.delete(0, 'end'); self.entry_ua.insert(0, '0')
+            self.entry_ub.delete(0, 'end'); self.entry_ub.insert(0, '0')
+            self.entry_n_pontos.delete(0, 'end'); self.entry_n_pontos.insert(0, '10')
+
 
 # Bloco principal para rodar a aplicação
 if __name__ == "__main__":
     root = tk.Tk()
     app = EDPSolverApp(root)
     root.mainloop()
+
+# Após calcular resultado, garantir que a solução estacionária (reta) seja somada ao resultado dinâmico
+# Isso deve ser feito dentro do loop de solve_onda_1d, após cada passo
+# Edite o arquivo 'src/time_solvers/onda_1d.py' para garantir isso

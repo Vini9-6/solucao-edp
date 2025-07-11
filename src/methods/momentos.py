@@ -8,6 +8,9 @@ from numpy.linalg import solve
 class MetodoMomentos(EDPSolver):
     def resolver(self, edp_params):
         x = sp.Symbol('x')
+        if not isinstance(edp_params['f'], sp.Basic):
+            raise TypeError(f"O parâmetro 'f' deve ser expressão simbólica do SymPy, recebido: {type(edp_params['f'])}")
+
         a, b = self.dominio
 
         n_base = max(3, self.n_pontos - 2)
@@ -54,9 +57,5 @@ class MetodoMomentos(EDPSolver):
                 resultado += c * phi_func(x_vals)
             except:
                 pass
-
-        if self.condicoes_contorno['tipo'] == 'dirichlet':
-            u_a, u_b = self.condicoes_contorno['valores']
-            resultado += u_a + (u_b - u_a) * (x_vals - a) / (b - a)
 
         return resultado, coef
