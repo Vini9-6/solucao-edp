@@ -37,6 +37,27 @@ O EDP Solver oferece uma interface gráfica (Tkinter) para entrada dos parâmetr
 
 ---
 
+## Resumo das Alterações e Funcionalidades
+
+**Introdução:**  
+O EDP Solver foi aprimorado para oferecer uma solução educacional completa para EDPs de segunda ordem, permitindo a resolução de problemas estacionários e temporais (Poisson, Calor, Onda, Helmholtz) com múltiplos métodos numéricos e interface gráfica intuitiva.
+
+**Métodos Implementados:**  
+O sistema executa automaticamente os métodos Rayleigh-Ritz, Galerkin, Colocação, Momentos, Subdomínios e Mínimos Quadrados, exibindo os resultados lado a lado e permitindo comparação quantitativa (erro RMS) e visual (gráficos).
+
+**Tecnologias Utilizadas:**  
+- Python 3.x  
+- Tkinter (interface gráfica)  
+- SymPy (manipulação simbólica)  
+- NumPy (cálculo numérico)  
+- Matplotlib (gráficos)  
+- FPDF (exportação PDF)
+
+**Resultados e Discussões:**  
+O programa valida todas as entradas, executa todos os métodos para cada problema, exibe coeficientes e soluções aproximadas, calcula o erro RMS entre métodos e permite exportar relatórios completos em PDF. Para EDPs temporais, a solução estacionária é somada à dinâmica ao final de cada passo, garantindo resultados fisicamente corretos. O sistema facilita o aprendizado e a comparação entre métodos clássicos de resolução de EDPs.
+
+---
+
 ## Métodos Numéricos Implementados
 
 - **Rayleigh-Ritz**
@@ -130,3 +151,48 @@ edp-solver/
 ## Licença
 
 Este projeto está licenciado sob a MIT License. Veja o arquivo LICENSE para mais detalhes.
+
+---
+
+# Relatório de Atualizações e Desenvolvimento
+
+## Introdução
+
+O EDP Solver foi desenvolvido com o propósito de fornecer uma ferramenta educacional robusta para a resolução de Equações Diferenciais Parciais (EDPs) de segunda ordem. O sistema foi expandido para abranger problemas estacionários e temporais, com múltiplos métodos numéricos e uma interface gráfica intuitiva, visando facilitar o aprendizado, a comparação e a análise dos métodos clássicos de solução de EDPs.
+
+## Objetivos
+
+- Permitir a resolução automática de EDPs de segunda ordem (Poisson, Calor, Onda, Helmholtz) em 1D com condições de contorno Dirichlet.
+- Implementar e comparar diversos métodos numéricos clássicos, exibindo resultados lado a lado.
+- Proporcionar uma interface gráfica amigável, com validação robusta das entradas e visualização dos resultados.
+- Oferecer exportação profissional dos resultados e relatórios em PDF.
+- Facilitar a extensão do sistema para novos métodos e tipos de equações.
+
+## Metodologia
+
+- **Estrutura Modular:** O projeto foi organizado em módulos separados para cada método numérico, facilitando manutenção e expansão.
+- **Interface Gráfica (Tkinter):** Desenvolvida para entrada dos parâmetros, seleção do tipo de equação, visualização simbólica e comparação dos resultados.
+- **Entrada Simbólica:** Utilização do SymPy para permitir expressões simbólicas nos coeficientes e condições, aumentando a flexibilidade.
+- **Validação:** Implementação de checagem automática dos campos, tipos, domínio e expressões, com mensagens de erro detalhadas.
+- **Execução Automática:** Todos os métodos são executados em sequência, com resultados exibidos simultaneamente para comparação.
+- **Visualização:** Gráficos gerados via Matplotlib, com legenda lateral e cálculo do erro RMS entre métodos.
+- **Exportação:** Relatórios completos gerados em PDF, incluindo gráficos, coeficientes e análise de erros.
+
+## Resultados
+
+- O sistema executa com sucesso todos os métodos implementados (Rayleigh-Ritz, Galerkin, Colocação, Momentos, Subdomínios, Mínimos Quadrados), exibindo as soluções aproximadas e coeficientes de cada método.
+- A interface gráfica permite fácil entrada dos parâmetros, visualização simbólica da equação e acompanhamento do progresso.
+- A validação robusta evita erros comuns de entrada, orientando o usuário com mensagens claras.
+- A exportação em PDF inclui todos os dados relevantes, gráficos e análise quantitativa dos métodos.
+- Para EDPs temporais, a solução estacionária é corretamente somada à dinâmica, garantindo resultados fisicamente consistentes.
+
+## Discussões e Desafios Encontrados
+
+- **Validação Simbólica:** Garantir que todas as expressões simbólicas inseridas pelo usuário fossem válidas e compatíveis com o domínio exigiu integração cuidadosa entre SymPy e a interface.
+- **Montagem dos Sistemas:** A implementação dos métodos exigiu atenção à montagem dos sistemas lineares, especialmente na integração simbólica e numérica dos termos.
+- **Interface Gráfica:** Adaptar a interface para suportar múltiplos métodos, visualização simultânea dos resultados e renderização LaTeX das equações foi um desafio de usabilidade.
+- **Performance:** Para problemas com muitos pontos, foi necessário implementar barra de progresso e otimizar cálculos para evitar travamentos.
+- **Exportação PDF:** Integrar gráficos e textos de forma profissional no relatório PDF demandou ajustes na formatação e compatibilidade entre Matplotlib e FPDF.
+- **Extensibilidade:** A estrutura modular foi pensada para facilitar futuras expansões, mas exigiu padronização das interfaces entre módulos e métodos.
+
+O desenvolvimento do EDP Solver proporcionou avanços significativos na usabilidade, robustez e capacidade de comparação entre métodos numéricos, tornando-o uma ferramenta valiosa para ensino e pesquisa em EDPs.
